@@ -21,9 +21,8 @@ export default function Sender() {
         // create offer
         const pc = new RTCPeerConnection();
 
-        
         //send the create offer to reciever side
-        pc.onnegotiationneeded = async () => {
+        pc.onnegotiationneeded = async() => {
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
             socket?.send(JSON.stringify({ type: "createOffer", sdp: pc.localDescription }));
