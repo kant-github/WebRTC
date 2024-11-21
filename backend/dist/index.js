@@ -30,6 +30,14 @@ wss.on('connection', function connection(ws) {
             console.log("create answer sent to sender side");
             senderSocket === null || senderSocket === void 0 ? void 0 : senderSocket.send(JSON.stringify({ type: "createAnswer", sdp: message.sdp }));
         }
+        else if (message.type === 'iceCandidate') {
+            if (ws === senderSocket) {
+                recieverSocket === null || recieverSocket === void 0 ? void 0 : recieverSocket.send(JSON.stringify({ type: 'iceCandidate', candidate: message.candidate }));
+            }
+            else if (ws === recieverSocket) {
+                senderSocket === null || senderSocket === void 0 ? void 0 : senderSocket.send(JSON.stringify({ type: 'iceCandidate', candidate: message.candidate }));
+            }
+        }
     });
-    ws.send('something');
+    // ws.send('something');
 });

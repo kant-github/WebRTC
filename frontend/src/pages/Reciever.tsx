@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 
 export default function Reciever() {
-
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:8080');
 
@@ -17,9 +16,17 @@ export default function Reciever() {
                 pc = new RTCPeerConnection();
                 pc.setRemoteDescription(message.sdp);
                 pc.onicecandidate = (event) => {
+                    console.log(event);
                     if (event.candidate) {
-                        socket.send(JSON.stringify({ type: 'iceCandidate', candidate: event.candidate }))
+                        socket?.send(JSON.stringify({ type: 'iceCandidate', candidate: event.candidate }))
                     }
+                }
+
+                pc.ontrack = (event) => {
+                    const video = document.createElement('video');
+                    document.body.appendChild(video);
+                    video.srcObject = new MediaStream([event.track])
+                    video.play();
                 }
 
                 const answer = await pc.createAnswer();
@@ -27,7 +34,8 @@ export default function Reciever() {
 
                 socket.send(JSON.stringify({ type: 'createAnswer', sdp: pc.localDescription }));
             } else if (message.type === 'iceCandidate') {
-                pc?.addIceCandidate(message.iceCandidate)
+                if(pc !== null)
+                pc.addIceCandidate(message.candidate)
             }
         }
     }, []);
